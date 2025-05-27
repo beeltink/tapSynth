@@ -12,14 +12,14 @@
 //==============================================================================
 TapSynthAudioProcessor::TapSynthAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
-     : AudioProcessor (BusesProperties()
-                     #if ! JucePlugin_IsMidiEffect
-                      #if ! JucePlugin_IsSynth
-                       .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
-                      #endif
-                       .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
-                     #endif
-                       )
+    : AudioProcessor(BusesProperties()
+#if ! JucePlugin_IsMidiEffect
+#if ! JucePlugin_IsSynth
+        .withInput("Input", juce::AudioChannelSet::stereo(), true)
+#endif
+        .withOutput("Output", juce::AudioChannelSet::stereo(), true)
+#endif
+    )
 #endif
 {
     // Adds sound to synthesizer (monophonic)
@@ -40,29 +40,29 @@ const juce::String TapSynthAudioProcessor::getName() const
 
 bool TapSynthAudioProcessor::acceptsMidi() const
 {
-   #if JucePlugin_WantsMidiInput
+#if JucePlugin_WantsMidiInput
     return true;
-   #else
+#else
     return false;
-   #endif
+#endif
 }
 
 bool TapSynthAudioProcessor::producesMidi() const
 {
-   #if JucePlugin_ProducesMidiOutput
+#if JucePlugin_ProducesMidiOutput
     return true;
-   #else
+#else
     return false;
-   #endif
+#endif
 }
 
 bool TapSynthAudioProcessor::isMidiEffect() const
 {
-   #if JucePlugin_IsMidiEffect
+#if JucePlugin_IsMidiEffect
     return true;
-   #else
+#else
     return false;
-   #endif
+#endif
 }
 
 double TapSynthAudioProcessor::getTailLengthSeconds() const
@@ -73,7 +73,7 @@ double TapSynthAudioProcessor::getTailLengthSeconds() const
 int TapSynthAudioProcessor::getNumPrograms()
 {
     return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
-                // so this should be at least 1, even if you're not really implementing programs.
+    // so this should be at least 1, even if you're not really implementing programs.
 }
 
 int TapSynthAudioProcessor::getCurrentProgram()
@@ -81,24 +81,31 @@ int TapSynthAudioProcessor::getCurrentProgram()
     return 0;
 }
 
-void TapSynthAudioProcessor::setCurrentProgram (int index)
+void TapSynthAudioProcessor::setCurrentProgram(int index)
 {
 }
 
-const juce::String TapSynthAudioProcessor::getProgramName (int index)
+const juce::String TapSynthAudioProcessor::getProgramName(int index)
 {
     return {};
 }
 
-void TapSynthAudioProcessor::changeProgramName (int index, const juce::String& newName)
+void TapSynthAudioProcessor::changeProgramName(int index, const juce::String& newName)
 {
 }
 
 //==============================================================================
-void TapSynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+void TapSynthAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
     synth.setCurrentPlaybackSampleRate(sampleRate);
 
+    for (int i = 0; i < synth.getNumVoices(); i++)
+    {
+        if (auto voice = dynamic_cast<SynthVoice*>(synth.getVoice(i)))
+        {
+            voice->prepareToPlay(sampleRate, samplesPerBlock, getTotalNumOutputChannels());
+        }
+    }
 }
 
 void TapSynthAudioProcessor::releaseResources()
