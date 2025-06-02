@@ -35,7 +35,8 @@ private:
 
     // Added basic oscillator code
     juce::dsp::Oscillator<float> osc{
-    [](float x) {
+        [](float x)
+        {
             // * sine wave *
             // return std::sin(x);
             // * saw wave *
